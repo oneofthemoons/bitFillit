@@ -153,23 +153,23 @@ int     main(int argc, char **argv)
     {
         j = -1;
         while (++j < bitMap.range)
+            ans[i][j] = '.';
+    }
+    curFig = -1;
+    while (++curFig < countFig)
+    {
+        i = -1;
+        while(++i < 4)
         {
-            if ((bitMap.st[i] >> j) & 1)
-            {
-                curFig = -1;
-                while (++curFig < countFig)
-                    if ((((arrFig[curFig].st[i - arrFig[curFig].pos.y] << arrFig[curFig].pos.x) & bitMap.st[i]) >> j) & 1)
-                    {
-                        ans[i][j] = 'A' + arrFig[curFig].map_num;
-                        break;
-                    }
-                    else
-                        ans[i][j] = '.';
-            }
-            else
-                ans[i][j] = '.';
+            j = -1;
+            while (++j < 4)
+                if ((arrFig[curFig].st[i] >> j) & 1)
+                    ans[arrFig[curFig].pos.y + i][arrFig[curFig].pos.x + j] = 'A' + arrFig[curFig].map_num;
         }
     }
+
+
+
     i = -1;
     while (++i < bitMap.range)
         printf("%s\n", ans[i]);
