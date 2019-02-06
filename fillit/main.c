@@ -11,14 +11,14 @@ int     ft_count_fig(char *map)
     return (hash >> 2); // (hash / 4) fast equivalent
 }
 
-uint    ft_minimal_range(int countFig)
+int    ft_minimal_range(int countFig)
 {
     int rng;
 
     rng = 1;
-    while (rng * rng < countFig)
+    while (rng * rng < (countFig << 2))
         ++rng;
-    return (rng << 1);
+    return (rng);
 }
 
 void    ft_fig_pos_zero(t_fig *arrFig, int n)
@@ -85,7 +85,7 @@ int     main(int argc, char **argv)
     free(map);
 
 
-    bitMap.range = 2U;
+    bitMap.range = ft_minimal_range(countFig) - 1;
     while (++bitMap.range < 26)
     {
         allIn = 0;
