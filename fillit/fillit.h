@@ -39,7 +39,7 @@ typedef struct  s_map
 char    *get_map(int argc, char **argv);
 void	ft_go_up_left(char* map, const int len);
 void    ft_to_binary(char *map, int countFig, t_fig *arrFig);
-int     ft_next_permutation(t_fig *arrFig, int n);
-void    ft_reset_permutations(t_fig *arrFig, int n);
+int     ft_next_placement(t_fig *arrFig, int last_index, int range);
+void    ft_reset_placements(t_fig *arrFig, int n);
 
 #endif

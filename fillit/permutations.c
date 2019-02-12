@@ -12,41 +12,38 @@
 
 #include "fillit.h"
 
-void    ft_swap_fig(t_fig *arrFig, int i, int j)
-{
-    t_fig temp = arrFig[i];
-    arrFig[i] = arrFig[j];
-    arrFig[j] = temp;
-}
-
-void    ft_reset_permutations(t_fig *arrFig, int n)
+void    ft_reset_placements(t_fig *arrFig, int n)
 {
     int i;
 
     i = -1;
-    while (++i < n / 2)
-        ft_swap_fig(arrFig, i, n - 1 - i);
+    while (++i < n)
+    {
+        arrFig[i].pos.x = 0;
+        arrFig[i].pos.y = 0;
+    }
 }
 
-int     ft_next_permutation(t_fig *arrFig, int n)
+int     ft_next_placement(t_fig *arrFig, int last_index, int range)
 {
-    int j;
-    int k;
-
-    if (n < 2)
+    if (arrFig[last_index].pos.x + arrFig[last_index].right >= range - 1 && arrFig[last_index].pos.y + arrFig[last_index].down >= range - 1 && last_index == 0)
+    {
+        arrFig[last_index].pos.x = 0;
+        arrFig[last_index].pos.y = 0;
         return (0);
-    j = n - 2;
-    while (j != -1 && arrFig[j].map_num >= arrFig[j + 1].map_num)
-        --j;
-    if (j == -1)
-        return (0);
-    k = n - 1;
-    while (arrFig[j].map_num >= arrFig[k].map_num)
-        --k;
-    ft_swap_fig(arrFig, j, k);
-    j = j + 1;
-    k = n - 1;
-    while (j < k)
-        ft_swap_fig(arrFig, j++, k--);
+    }
+    if (arrFig[last_index].pos.x + arrFig[last_index].right >= range - 1 && arrFig[last_index].pos.y + arrFig[last_index].down >= range - 1)
+    {
+        arrFig[last_index].pos.x = 0;
+        arrFig[last_index].pos.y = 0;
+        return (ft_next_placement(arrFig, last_index - 1, range));
+    }
+    if (arrFig[last_index].pos.x + arrFig[last_index].right >= range - 1)
+    {
+        arrFig[last_index].pos.x = 0;
+        ++arrFig[last_index].pos.y;
+        return (1);
+    }
+    ++arrFig[last_index].pos.x;
     return (1);
 }

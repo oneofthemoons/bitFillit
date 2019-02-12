@@ -21,18 +21,6 @@ int    ft_minimal_range(int countFig)
     return (rng);
 }
 
-void    ft_fig_pos_zero(t_fig *arrFig, int n)
-{
-    int i;
-
-    i = -1;
-    while (++i < n)
-    {
-        arrFig[i].pos.x = 0;
-        arrFig[i].pos.y = 0;
-    }
-}
-
 // void    printBitMap(t_map bitMap)
 // {
 //     int i;
@@ -89,53 +77,32 @@ int     main(int argc, char **argv)
     while (++bitMap.range < 26)
     {
         allIn = 0;
-        ft_bzero(bitMap.st, 32 * sizeof(uint));
-        ft_fig_pos_zero(arrFig, countFig);
-        curFig = -1;
-        while (++curFig < countFig)
+        ft_reset_placements(arrFig, countFig);
+
+        while (ft_next_placement(arrFig, countFig - 1, bitMap.range))   // можно пропустить первый шаг, т.к. там все равно гарантировано пересечение фигур
         {
-            allIn = 0;
-            figIn = 0;
-            while(!figIn)
+            ft_bzero(bitMap.st, 32 * sizeof(uint));
+            allIn = 1;
+            curFig = -1;
+            while (++curFig < countFig)
             {
-                if (bitMap.range <= arrFig[curFig].pos.x + arrFig[curFig].right ||
-                    bitMap.range <= arrFig[curFig].pos.y + arrFig[curFig].down)
-                    break ;
                 figIn = 1;
                 i = -1;
                 while (++i < 4)
-                {
                     if ((arrFig[curFig].st[i] << arrFig[curFig].pos.x) & bitMap.st[arrFig[curFig].pos.y + i]) //if binary expr != 0
                     {
+                        allIn = 0;
                         figIn = 0;
-                        ++arrFig[curFig].pos.x;
-                        if (arrFig[curFig].pos.x + arrFig[curFig].right >= bitMap.range)
-                        {
-                            arrFig[curFig].pos.x = 0;
-                            ++arrFig[curFig].pos.y;
-                        }
-                        break ;
+                        break;
                     }
-                }
+                if (!figIn)
+                    break;
                 i = -1;
-                while (++i < 4 && figIn)
+                while (++i < 4)
                     bitMap.st[arrFig[curFig].pos.y + i] |= (arrFig[curFig].st[i] << arrFig[curFig].pos.x);
-                // printf("fig %d: pos.x = %d, pos.y = %d, figIn = %d\n", curFig, arrFig[curFig].pos.x, arrFig[curFig].pos.y, figIn);
-                // printBitFig(arrFig[curFig]);
-                // printBitMap(bitMap);
             }
-            if (!figIn)
-            {
-                ft_bzero(bitMap.st, 32 * sizeof(uint));
-                ft_fig_pos_zero(arrFig, countFig);
-                curFig = -1;
-                if (!ft_next_permutation(arrFig, countFig))
-                {
-                    ft_reset_permutations(arrFig, countFig);
-                    break ;
-                }
-            }
-            allIn = 1;
+            if (allIn)
+                break;
         }
         if (allIn)
             break ;
