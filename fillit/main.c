@@ -108,19 +108,14 @@ int     main(int argc, char **argv)
                         break;
                     }
                 if (!figIn)
-                {
-                    system("clear");
-                    printf("fig: %d\n", curFig);
-                    printBitMap(bitMap);
                     break;
-                }
                 i = -1;
                 while (++i < 4)
                     bitMap.st[arrFig[curFig].pos.y + i] |= (arrFig[curFig].st[i] << arrFig[curFig].pos.x);
-                system("clear");
-                printf("fig: %d\n", curFig);
-                printBitMap(bitMap);
             }
+            system("clear");
+            printf("fig: %d\n", curFig);
+            printBitMap(bitMap);
             if (allIn)
                 break;
         }
