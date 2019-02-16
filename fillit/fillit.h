@@ -42,4 +42,11 @@ void    ft_to_binary(char *map, int countFig, t_fig *arrFig);
 int     ft_next_placement(t_fig *arrFig, int last_index, int range);
 void    ft_reset_placements(t_fig *arrFig, int n);
 
+
+
+
+void    printBitMap(t_map bitMap);
+
+
+
 #endif

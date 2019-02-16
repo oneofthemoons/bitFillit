@@ -32,21 +32,21 @@ int     ft_minimal_range(t_fig *arrFig, int countFig)
     return (rng);
 }
 
-void    printBitMap(t_map bitMap)
-{
-    int i;
-    int j;
+// void    printBitMap(t_map bitMap)
+// {
+//     int i;
+//     int j;
 
-    printf("bitmap:\n");
-    i = -1;
-    while (++i < bitMap.range)
-    {
-        j = -1;
-        while (++j < bitMap.range)
-            printf("%d", (bitMap.st[i] >> j) & 1);
-        printf("\n");
-    }
-}
+//     printf("bitmap:\n");
+//     i = -1;
+//     while (++i < bitMap.range)
+//     {
+//         j = -1;
+//         while (++j < bitMap.range)
+//             printf("%d", (bitMap.st[i] >> j) & 1);
+//         printf("\n");
+//     }
+// }
 
 // void    printBitFig(t_fig fig)
 // {
@@ -93,7 +93,7 @@ int     main(int argc, char **argv)
 
         while (ft_next_placement(arrFig, countFig - 1, bitMap.range))   // можно пропустить первый шаг, т.к. там все равно гарантировано пересечение фигур
         {
-            ft_bzero(bitMap.st, 32 * sizeof(uint));
+            ft_bzero(bitMap.st, 32 * sizeof(int));
             allIn = 1;
             curFig = -1;
             while (++curFig < countFig)
@@ -109,20 +109,26 @@ int     main(int argc, char **argv)
                     }
                 if (!figIn)
                     break;
+                else if (arrFig[curFig].pos.x + arrFig[curFig].right >= bitMap.range || arrFig[curFig].pos.y + arrFig[curFig].down >= bitMap.range)
+                {
+                    allIn = 0;
+                    figIn = 0;
+                    break;
+                }
                 i = -1;
                 while (++i < 4)
                     bitMap.st[arrFig[curFig].pos.y + i] |= (arrFig[curFig].st[i] << arrFig[curFig].pos.x);
             }
-            system("clear");
-            printf("fig: %d\n", curFig);
-            printBitMap(bitMap);
+            // system("clear");
+            // printf("fig: %d\n", curFig);
+            // printBitMap(bitMap);
             if (allIn)
                 break;
         }
         if (allIn)
             break ;
     }
-    printf("\n\n");
+    // printf("\n\n");
 
 
 
