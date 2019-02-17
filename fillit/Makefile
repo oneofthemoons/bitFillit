@@ -1,6 +1,6 @@
 all:
 	make -C ../libft/ fclean && make -C ../libft/
-	gcc -Wextra -Wall -Werror main.c valid.c angle_moving.c to_binary.c permutations.c -L../libft -lft -o fillit -I ../libft
+	gcc -Wextra -Wall -Werror main.c valid.c angle_moving.c to_binary.c permutations.c symbol_render.c -L../libft -lft -o fillit -I ../libft
 clear:
 	rm -f *.o
 	make -C ../libft/ clean

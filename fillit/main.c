@@ -1,164 +1,131 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: hrickard <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/02/17 14:46:32 by hrickard          #+#    #+#             */
+/*   Updated: 2019/02/17 14:46:35 by hrickard         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "fillit.h"
 
-#include <stdlib.h> //DEBUG
-
-int     ft_count_fig(char *map)
+int		ft_minimal_range(t_fig *arr, int n_fig)
 {
-    int hash;
+	int	rng;
+	int	i;
 
-    hash = 0;
-    while (*map)
-        if (*map++ == '#')
-            ++hash;
-    return (hash >> 2); // (hash / 4) fast equivalent
+	rng = 1;
+	while (rng * rng < (n_fig << 2))
+		++rng;
+	i = -1;
+	while (++i < n_fig)
+	{
+		if (rng <= arr[i].right)
+			rng = arr[i].right + 1;
+		if (rng <= arr[i].down)
+			rng = arr[i].down + 1;
+	}
+	return (rng);
 }
 
-int     ft_minimal_range(t_fig *arrFig, int countFig)
+void	ft_check_putin(t_fig *arr, t_map *bit, int n_fig, int *all)
 {
-    int rng;
-    int i;
+	int	cur;
+	int	in;
+	int	i;
 
-    rng = 1;
-    while (rng * rng < (countFig << 2))
-        ++rng;
-    i = -1;
-    while (++i < countFig)
-    {
-        if (rng <= arrFig[i].right)
-            rng = arrFig[i].right + 1;
-        if (rng <= arrFig[i].down)
-            rng = arrFig[i].down + 1;
-    }
-    return (rng);
+	cur = -1;
+	while (++cur < n_fig)
+	{
+		in = 1;
+		i = -1;
+		while (++i < 4)
+			if (arr[cur].st[i] << arr[cur].pos.x &
+					bit->st[arr[cur].pos.y + i] ||
+					arr[cur].pos.x + arr[cur].right >= bit->range ||
+					arr[cur].pos.y + arr[cur].down >= bit->range)
+			{
+				*all = 0;
+				in = 0;
+				break ;
+			}
+		if (!in)
+			break ;
+		i = -1;
+		while (++i < 4)
+			bit->st[arr[cur].pos.y + i] |= (arr[cur].st[i] << arr[cur].pos.x);
+	}
 }
 
-// void    printBitMap(t_map bitMap)
-// {
-//     int i;
-//     int j;
-
-//     printf("bitmap:\n");
-//     i = -1;
-//     while (++i < bitMap.range)
-//     {
-//         j = -1;
-//         while (++j < bitMap.range)
-//             printf("%d", (bitMap.st[i] >> j) & 1);
-//         printf("\n");
-//     }
-// }
-
-// void    printBitFig(t_fig fig)
-// {
-//     int i;
-//     int j;
-
-//     printf("fig:\n");
-//     i = -1;
-//     while (++i < 4)
-//     {
-//         j = -1;
-//         while (++j < 4)
-//             printf("%d", (fig.st[i] >> j) & 1);
-//         printf("\n");
-//     }
-// }
-
-int     main(int argc, char **argv)
+void	ft_prepare_map(t_map *bit, char ans[26][27])
 {
-    char    *map;
-    t_fig   arrFig[26];
-    t_map   bitMap;
-    int     countFig;
-    int     curFig;
-    int     i;
-    int     allIn;
-    int     figIn;
+	int	i;
+	int	j;
 
-    char    ans[26][27];
-    int     j;
+	i = -1;
+	while (++i < 26)
+		ft_bzero(ans[i], 27 * sizeof(char));
+	i = -1;
+	while (++i < bit->range)
+	{
+		j = -1;
+		while (++j < bit->range)
+			ans[i][j] = '.';
+	}
+}
 
-    map = get_map(argc, argv);
-    countFig = ft_count_fig(map);
-    ft_to_binary(map, countFig, arrFig);
-    free(map);
+void	ft_edro(t_fig *arr, t_map *bit, int n_fig)
+{
+	char	ans[26][27];
+	int		cur;
+	int		i;
+	int		j;
 
+	ft_prepare_map(bit, ans);
+	cur = -1;
+	while (++cur < n_fig)
+	{
+		i = -1;
+		while (++i < 4)
+		{
+			j = -1;
+			while (++j < 4)
+				if ((arr[cur].st[i] >> j) & 1)
+					ans[arr[cur].pos.y + i][arr[cur].pos.x + j] =
+					'A' + arr[cur].map_num;
+		}
+	}
+	i = -1;
+	while (++i < bit->range)
+		ft_putendl(ans[i]);
+}
 
-    bitMap.range = ft_minimal_range(arrFig, countFig) - 1;
-    
-    while (++bitMap.range < 26)
-    {
-        allIn = 0;
-        ft_reset_placements(arrFig, countFig);
+int		main(int argc, char **argv)
+{
+	char	*map;
+	t_fig	arr[26];
+	t_map	bit;
+	int		n_fig;
+	int		all;
 
-        while (ft_next_placement(arrFig, countFig - 1, bitMap.range))   // можно пропустить первый шаг, т.к. там все равно гарантировано пересечение фигур
-        {
-            ft_bzero(bitMap.st, 32 * sizeof(int));
-            allIn = 1;
-            curFig = -1;
-            while (++curFig < countFig)
-            {
-                figIn = 1;
-                i = -1;
-                while (++i < 4)
-                    if ((arrFig[curFig].st[i] << arrFig[curFig].pos.x) & bitMap.st[arrFig[curFig].pos.y + i]) //if binary expr != 0
-                    {
-                        allIn = 0;
-                        figIn = 0;
-                        break;
-                    }
-                if (!figIn)
-                    break;
-                else if (arrFig[curFig].pos.x + arrFig[curFig].right >= bitMap.range || arrFig[curFig].pos.y + arrFig[curFig].down >= bitMap.range)
-                {
-                    allIn = 0;
-                    figIn = 0;
-                    break;
-                }
-                i = -1;
-                while (++i < 4)
-                    bitMap.st[arrFig[curFig].pos.y + i] |= (arrFig[curFig].st[i] << arrFig[curFig].pos.x);
-            }
-            // system("clear");
-            // printf("fig: %d\n", curFig);
-            // printBitMap(bitMap);
-            if (allIn)
-                break;
-        }
-        if (allIn)
-            break ;
-    }
-    // printf("\n\n");
-
-
-
-
-    i = -1;
-    while (++i < 26)
-        ft_bzero(ans[i], 27 * sizeof(char));
-    i = -1;
-    while (++i < bitMap.range)
-    {
-        j = -1;
-        while (++j < bitMap.range)
-            ans[i][j] = '.';
-    }
-    curFig = -1;
-    while (++curFig < countFig)
-    {
-        i = -1;
-        while(++i < 4)
-        {
-            j = -1;
-            while (++j < 4)
-                if ((arrFig[curFig].st[i] >> j) & 1)
-                    ans[arrFig[curFig].pos.y + i][arrFig[curFig].pos.x + j] = 'A' + arrFig[curFig].map_num;
-        }
-    }
-
-
-
-    i = -1;
-    while (++i < bitMap.range)
-        printf("%s\n", ans[i]);
+	all = 0;
+	map = ft_get_map(argc, argv);
+	n_fig = ft_count_fig(map);
+	ft_to_binary(map, n_fig, arr);
+	free(map);
+	bit.range = ft_minimal_range(arr, n_fig) - 1;
+	while (!all && ++bit.range < 26)
+	{
+		ft_reset_placements(arr, n_fig);
+		while (!all && ft_next_placement(arr, n_fig - 1, bit.range))
+		{
+			all = 1;
+			ft_bzero(bit.st, 32 * sizeof(int));
+			ft_check_putin(arr, &bit, n_fig, &all);
+		}
+	}
+	ft_edro(arr, &bit, n_fig);
 }
